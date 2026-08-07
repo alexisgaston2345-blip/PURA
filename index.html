@@ -499,14 +499,13 @@
       return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     }
 
-    function showOrder() {
+  function showOrder() {
       if (cart.length === 0) {
         alert("Tu carrito está vacío");
         return;
       }
-      const message = buildMessage();
       const url = makeWhatsAppLink();
-      showMessage("Pedido listo para enviar:\n\n" + message + "\n\nLink:\n" + url);
+      window.open(url, "_blank");
     }
 
     async function copyOrder() {
