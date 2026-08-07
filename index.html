@@ -156,7 +156,7 @@
     }
     .modal.open { display: flex; }
     .modal-content {
-      background: white; width: min(600px, 100%); max-height: 90vh;
+      background: white; width: min(650px, 100%); max-height: 90vh;
       border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
     }
     .modal-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
@@ -234,7 +234,18 @@
         <button onclick="closeAdminModal()" style="background:none; border:none; font-size:18px; cursor:pointer;">✕</button>
       </div>
       <div class="modal-body">
-        <h3 style="margin:0 0 8px 0;" id="formTitleText">Nuevo producto</h3>
+        
+        <!-- SECCIÓN DE CARGA MASIVA CSV -->
+        <div style="background: var(--soft); padding: 14px; border-radius: 12px; border: 1px dashed var(--border);">
+          <h3 style="margin:0 0 6px 0; font-size:15px;">📥 Importar Lista Masiva (CSV)</h3>
+          <p style="margin:0 0 10px 0; font-size:12px; color:var(--muted);">Sube tu archivo CSV con columnas: Nombre, Categoría, Precio, Descripción, Imagen(URL), EsNuevo(si/no), EsOferta(si/no)</p>
+          <input type="file" id="csvFileInput" accept=".csv" style="font-size:13px; margin-bottom:8px;">
+          <button class="secondary" style="width:100%; font-size:13px;" onclick="importCSV()">Cargar todos los productos del CSV</button>
+        </div>
+
+        <hr style="border:0; border-top:1px solid var(--border); margin:5px 0;">
+
+        <h3 style="margin:0 0 4px 0;" id="formTitleText">Nuevo producto individual</h3>
         <input type="hidden" id="editIndex" value="-1">
         
         <div class="form-group">
@@ -283,7 +294,7 @@
 
   <script>
     const WHATSAPP_NUMBER = "543484341158";
-    const ADMIN_PIN = "1234"; // <-- CAMBIA ESTE NÚMERO SI QUIERES OTRA CONTRASEÑA
+    const ADMIN_PIN = "1234"; // Cambia tu contraseña si lo deseas
     const STORAGE_PRODUCTS = "pura_products_v2";
     const STORAGE_CATEGORIES = "pura_categories_v2";
     const STORAGE_CART = "pura_cart_v2";
@@ -300,7 +311,6 @@
     let cart = [];
     let activeCategory = "Todos";
 
-    // Inicializar datos
     function initData() {
       const savedProd = localStorage.getItem(STORAGE_PRODUCTS);
       products = savedProd ? JSON.parse(savedProd) : defaultProducts;
@@ -321,10 +331,10 @@
       localStorage.setItem(STORAGE_CART, JSON.stringify(cart));
     }
 
-    // Escuchar tecla F4 para abrir el panel con contraseña
+    // Activar con F4 y pedir PIN
     document.addEventListener('keydown', function(event) {
       if (event.key === "F4") {
-        event.preventDefault(); // Evita funciones predeterminadas del navegador para F4
+        event.preventDefault();
         const ingresado = prompt("Ingresa la contraseña de administración:");
         if (ingresado === ADMIN_PIN) {
           openAdminModal();
@@ -334,7 +344,7 @@
       }
     });
 
-    // Manejo de carga de imagen local a Base64
+    // Carga de imagen individual local a Base64
     document.getElementById('prodImageFile').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
@@ -345,6 +355,64 @@
         reader.readAsDataURL(file);
       }
     });
+
+    // Importación de archivo CSV masivo
+    function importCSV() {
+      const fileInput = document.getElementById('csvFileInput');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Por favor selecciona un archivo CSV primero.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split("\n");
+        let addedCount = 0;
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          // Separar por coma o punto y coma
+          const cols = line.split(/,|;/).map(c => c.trim().replace(/^["']|["']$/g, ''));
+          
+          // Omitir cabecera si el campo precio no es un número
+          if (i === 0 && (isNaN(cols[2]) || cols[2] === "Precio")) continue;
+
+          if (cols.length >= 3) {
+            const name = cols[0] || "Sin nombre";
+            const category = cols[1] || "General";
+            const price = parseFloat(cols[2]) || 0;
+            const desc = cols[3] || "";
+            const image = cols[4] || "";
+            const isNew = cols[5] ? (cols[5].toLowerCase() === 'si' || cols[5].toLowerCase() === 'true') : false;
+            const isOffer = cols[6] ? (cols[6].toLowerCase() === 'si' || cols[6].toLowerCase() === 'true') : false;
+
+            // Agregar categoría si es nueva
+            if (!categories.includes(category) && category !== "Todos") {
+              categories.push(category);
+            }
+
+            products.push({
+              id: Date.now() + i,
+              name, category, price, desc, image, isNew, isOffer
+            });
+            addedCount++;
+          }
+        }
+
+        saveData();
+        updateAdminCategorySelect();
+        renderAdminProductList();
+        renderFilters();
+        renderProducts();
+        alert(`¡Se han importado ${addedCount} productos correctamente desde el CSV!`);
+        fileInput.value = "";
+      };
+      reader.readAsText(file);
+    }
 
     const filtersEl = document.getElementById("filters");
     const gridEl = document.getElementById("productGrid");
@@ -488,7 +556,6 @@
       window.open(url, "_blank");
     }
 
-    // Funciones del Panel de Administración
     function openAdminModal() {
       document.getElementById("adminModal").classList.add("open");
       resetAdminForm();
@@ -504,7 +571,7 @@
 
     function resetAdminForm() {
       document.getElementById("editIndex").value = "-1";
-      document.getElementById("formTitleText").textContent = "Nuevo producto";
+      document.getElementById("formTitleText").textContent = "Nuevo producto individual";
       document.getElementById("prodName").value = "";
       document.getElementById("prodPrice").value = "";
       document.getElementById("prodDesc").value = "";
@@ -613,7 +680,6 @@
       }
     }
 
-    // Inicialización general
     searchEl.addEventListener("input", renderProducts);
     initData();
     renderFilters();
