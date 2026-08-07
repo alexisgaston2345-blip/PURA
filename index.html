@@ -234,6 +234,40 @@
       localStorage.setItem(STORAGE_CART, JSON.stringify(cart));
     }
 
+    // --- ATAJO SECRETO PARA DESCARGAR CÓDIGO ACTUALIZADO (Ctrl + Shift + F) ---
+    document.addEventListener('keydown', function(event) {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'f') {
+        event.preventDefault();
+        exportCodeForGitHub();
+      }
+    });
+
+    function exportCodeForGitHub() {
+      const currentProductsJSON = JSON.stringify(products, null, 2);
+      const currentCategoriesJSON = JSON.stringify(categories, null, 2);
+
+      let fullHtml = document.documentElement.outerHTML;
+
+      fullHtml = fullHtml.replace(
+        /let defaultProducts = \[[\s\S]*?\];/,
+        `let defaultProducts = ${currentProductsJSON};`
+      );
+      fullHtml = fullHtml.replace(
+        /let defaultCategories = \[[\s\S]*?\];/,
+        `let defaultCategories = ${currentCategoriesJSON};`
+      );
+
+      const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      alert("¡Archivo descargado con tus productos actuales! Súbelo a UGIS para reflejarlo en el celular.");
+    }
+
     const filtersEl = document.getElementById("filters");
     const gridEl = document.getElementById("productGrid");
     const searchEl = document.getElementById("search");
