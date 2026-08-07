@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PURA - Pedidos</title>
+  <title>PURA - Pedidos y Administración</title>
   <style>
     :root {
       --bg: #ffffff;
@@ -16,6 +16,7 @@
       --card: #ffffff;
       --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
       --ok: #25d366;
+      --danger: #ef4444;
     }
     * { box-sizing: border-box; }
     body {
@@ -51,246 +52,133 @@
     }
     .search {
       flex: 1;
-      min-width: 240px;
-      max-width: 520px;
+      min-width: 220px;
+      max-width: 400px;
       padding: 12px 14px;
       border: 1px solid var(--border);
       border-radius: 12px;
       outline: none;
     }
-    .cart-btn {
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .cart-btn, .admin-btn {
       padding: 12px 16px;
       border: none;
       border-radius: 12px;
-      background: var(--primary);
-      color: white;
       cursor: pointer;
-      font-weight: 700;
+      font-weight: 750;
     }
+    .cart-btn { background: var(--primary); color: white; }
+    .admin-btn { background: var(--soft); color: var(--text); border: 1px solid var(--border); }
+    
     .hero {
       padding: 28px 16px;
       background: linear-gradient(135deg, #eff6ff, #ffffff);
       border-bottom: 1px solid var(--border);
     }
-    .hero h1 {
-      margin: 0 0 8px;
-      font-size: 36px;
-    }
-    .hero p {
-      margin: 0 0 16px;
-      color: var(--muted);
-      max-width: 720px;
-    }
+    .hero h1 { margin: 0 0 8px; font-size: 32px; }
+    .hero p { margin: 0 0 16px; color: var(--muted); max-width: 720px; }
     .hero button {
-      padding: 12px 18px;
-      border: none;
-      border-radius: 12px;
-      background: var(--primary);
-      color: white;
-      cursor: pointer;
-      font-weight: 700;
+      padding: 12px 18px; border: none; border-radius: 12px;
+      background: var(--primary); color: white; cursor: pointer; font-weight: 700;
     }
     .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 18px 0 24px;
+      display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0 24px;
     }
     .chip {
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: 999px;
-      cursor: pointer;
+      padding: 10px 14px; border: 1px solid var(--border);
+      background: white; border-radius: 999px; cursor: pointer; font-size: 14px;
     }
-    .chip.active {
-      background: var(--text);
-      color: white;
-      border-color: var(--text);
-    }
+    .chip.active { background: var(--text); color: white; border-color: var(--text); }
+    
     .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin: 24px 0 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; margin: 24px 0 14px;
     }
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 16px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
     }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; overflow: hidden; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; position: relative;
     }
     .card-img {
-      height: 170px;
-      background: linear-gradient(135deg, #dbeafe, #f8fafc);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
+      height: 180px; background: #f1f5f9; display: flex; align-items: center;
+      justify-content: center; overflow: hidden; position: relative;
     }
-    .card-body {
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex: 1;
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-badges {
+      position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; flex-wrap: wrap;
     }
-    .card h3 {
-      margin: 0;
-      font-size: 16px;
+    .badge {
+      padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 6px; color: white;
     }
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .price-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-top: auto;
-    }
-    .price {
-      font-weight: 800;
-      color: var(--primary-dark);
-    }
+    .badge-new { background: #3b82f6; }
+    .badge-offer { background: #ef4444; }
+
+    .card-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .card h3 { margin: 0; font-size: 16px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; }
+    .price { font-weight: 800; color: var(--primary-dark); font-size: 16px; }
     .add-btn {
-      padding: 10px 12px;
-      border: none;
-      border-radius: 10px;
-      background: var(--primary);
-      color: white;
-      cursor: pointer;
-      font-weight: 700;
+      padding: 8px 12px; border: none; border-radius: 10px;
+      background: var(--primary); color: white; cursor: pointer; font-weight: 700;
     }
+
+    /* Drawer Cart */
     .drawer {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      width: min(420px, calc(100% - 32px));
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      display: none;
-      overflow: hidden;
-      z-index: 20;
+      position: fixed; right: 16px; bottom: 16px; width: min(420px, calc(100% - 32px));
+      background: white; border: 1px solid var(--border); border-radius: 18px;
+      box-shadow: var(--shadow); display: none; overflow: hidden; z-index: 30;
     }
     .drawer.open { display: block; }
-    .drawer-header,
-    .drawer-footer {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .drawer-footer {
-      border-bottom: none;
-      border-top: 1px solid var(--border);
-      display: grid;
-      gap: 10px;
-    }
-    .drawer-body {
-      max-height: 320px;
-      overflow: auto;
-      padding: 8px 16px;
-    }
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .cart-item:last-child { border-bottom: none; }
-    .qty-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .qty-controls button {
-      width: 28px;
-      height: 28px;
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .action-btn {
-      padding: 12px 14px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .whatsapp {
-      background: var(--ok);
-      color: white;
-    }
-    .secondary {
-      background: var(--soft);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      padding: 30px 0;
-    }
-    .notice {
-      margin-top: 10px;
-      padding: 12px;
-      border: 1px solid #bfdbfe;
-      background: #eff6ff;
-      color: #1d4ed8;
-      border-radius: 12px;
-      font-size: 14px;
-      display: none;
-      word-break: break-word;
-      white-space: pre-wrap;
-    }
-    .notice.show { display: block; }
-    footer {
-      border-top: 1px solid var(--border);
-      background: var(--soft);
-      margin-top: 40px;
-    }
-    footer .columns {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-    }
-    footer p, footer li {
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .floating {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      transform: translateY(-80px);
-      z-index: 15;
-      display: none;
-    }
-    .floating.show { display: block; }
+    .drawer-header, .drawer-footer { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .drawer-footer { border-bottom: none; border-top: 1px solid var(--border); display: grid; gap: 10px; }
+    .drawer-body { max-height: 300px; overflow: auto; padding: 8px 16px; }
+    .cart-item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .qty-controls { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .qty-controls button { width: 26px; height: 26px; border: 1px solid var(--border); background: white; border-radius: 6px; cursor: pointer; }
+    
+    .action-btn { padding: 12px 14px; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; text-align: center; }
+    .whatsapp { background: var(--ok); color: white; }
+    .secondary { background: var(--soft); color: var(--text); border: 1px solid var(--border); }
+    .danger { background: var(--danger); color: white; }
 
-    /* sr-only for accessible labels */
-    .sr-only {
-      position: absolute !important;
-      height: 1px; width: 1px;
-      overflow: hidden;
-      clip: rect(1px, 1px, 1px, 1px);
-      white-space: nowrap;
+    /* Admin Modal */
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none;
+      z-index: 50; align-items: center; justify-content: center; padding: 16px;
     }
+    .modal.open { display: flex; }
+    .modal-content {
+      background: white; width: min(600px, 100%); max-height: 90vh;
+      border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
+    }
+    .modal-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 700; color: var(--text); }
+    .form-group input, .form-group textarea, .form-group select {
+      padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; outline: none; font-size: 14px;
+    }
+    .checkbox-group { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+    .checkbox-group label { display: flex; gap: 6px; align-items: center; font-weight: normal; cursor: pointer; }
+
+    .admin-product-row {
+      display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: var(--soft);
+    }
+
+    .notice { margin-top: 10px; padding: 12px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; border-radius: 12px; font-size: 14px; display: none; white-space: pre-wrap; }
+    .notice.show { display: block; }
+    
+    footer { border-top: 1px solid var(--border); background: var(--soft); margin-top: 40px; padding: 24px 0; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
   </style>
 </head>
 <body>
@@ -298,15 +186,18 @@
     <div class="container topbar">
       <div class="brand">PURA</div>
       <label for="search" class="sr-only">Buscar productos</label>
-      <input id="search" class="search" type="text" placeholder="Buscar productos..." aria-label="Buscar productos" />
-      <button class="cart-btn" onclick="toggleCart()" aria-controls="cartDrawer" aria-expanded="false">Carrito (<span id="cartCount">0</span>)</button>
+      <input id="search" class="search" type="text" placeholder="Buscar productos..." />
+      <div class="nav-actions">
+        <button class="admin-btn" onclick="openAdminModal()">Admin</button>
+        <button class="cart-btn" onclick="toggleCart()">Carrito (<span id="cartCount">0</span>)</button>
+      </div>
     </div>
   </header>
 
   <section class="hero">
     <div class="container">
       <h1>Elegí tus productos y enviá tu pedido por WhatsApp</h1>
-      <p>Armá tu carrito, revisá el total y generá el mensaje listo para reenviar a nuestra tienda.</p>
+      <p>Armá tu carrito, revisá el total y generá el mensaje listo para enviar a nuestra tienda.</p>
       <button onclick="document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth' })">Ver catálogo</button>
     </div>
   </section>
@@ -320,68 +211,135 @@
     </div>
 
     <div class="grid" id="productGrid"></div>
-    <div id="whatsappNotice" class="notice" role="status" aria-live="polite"></div>
+    <div id="whatsappNotice" class="notice"></div>
   </main>
 
   <footer>
-    <div class="container">
-      <div class="columns">
-        <div>
-          <h3>PURA</h3>
-          <p>Pedí tus productos y reenviá el pedido por WhatsApp.</p>
-        </div>
-        <div>
-          <h4>Categorías</h4>
-          <ul>
-            <li>Shampoos</li>
-            <li>Ceras</li>
-            <li>Siliconas</li>
-            <li>Limpieza</li>
-            <li>Accesorios</li>
-          </ul>
-        </div>
-        <div>
-          <h4>Pedido</h4>
-          <p>El cliente selecciona productos.</p>
-          <p>Luego copia el pedido y te lo manda por WhatsApp.</p>
-        </div>
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <div>
+        <h3>PURA</h3>
+        <p style="color:var(--muted); font-size:14px; margin:0;">Pedí tus productos y envialos por WhatsApp.</p>
       </div>
+      <button class="admin-btn" onclick="openAdminModal()">⚙️ Panel de Administración</button>
     </div>
   </footer>
 
-  <div class="drawer" id="cartDrawer" role="dialog" aria-labelledby="cartTitle" tabindex="-1">
-    <div class="drawer-header">
-      <strong id="cartTitle">Tu carrito</strong>
-    </div>
+  <!-- Drawer Cart -->
+  <div class="drawer" id="cartDrawer">
+    <div class="drawer-header"><strong>Tu carrito</strong></div>
     <div class="drawer-body" id="cartItems"></div>
     <div class="drawer-footer">
       <div><strong>Total: $<span id="cartTotal">0</span></strong></div>
-      <button class="action-btn whatsapp" onclick="showOrder()">Generar pedido</button>
-      <button class="action-btn secondary" onclick="copyOrder()">Copiar pedido</button>
+      <button class="action-btn whatsapp" onclick="showOrder()">Enviar pedido por WhatsApp</button>
       <button class="action-btn secondary" onclick="clearCart()">Vaciar carrito</button>
     </div>
   </div>
 
-  <div class="floating" id="floatingButton">
-    <button class="action-btn whatsapp" onclick="toggleCart(true)">Ver carrito</button>
+  <!-- Admin Modal -->
+  <div class="modal" id="adminModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <strong>Panel de Administración</strong>
+        <button onclick="closeAdminModal()" style="background:none; border:none; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <h3 style="margin:0 0 8px 0;" id="formTitleText">Nuevo producto</h3>
+        <input type="hidden" id="editIndex" value="-1">
+        
+        <div class="form-group">
+          <label>Título *</label>
+          <input type="text" id="prodName" placeholder="Ej: Shampoo Premium">
+        </div>
+
+        <div class="form-group">
+          <label>Categoría *</label>
+          <div style="display:flex; gap:8px;">
+            <select id="prodCategory" style="flex:1;"></select>
+            <button class="secondary" onclick="addNewCategoryPrompt()" style="padding:10px;">+ Nueva</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Precio ($) *</label>
+          <input type="number" id="prodPrice" placeholder="Ej: 8500">
+        </div>
+
+        <div class="form-group">
+          <label>Descripción corta</label>
+          <textarea id="prodDesc" rows="2" placeholder="Detalles del producto..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Foto del producto (Archivo JPG / PNG)</label>
+          <input type="file" id="prodImageFile" accept="image/png, image/jpeg">
+          <input type="hidden" id="prodImageBase64">
+        </div>
+
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="prodIsNew"> Nuevo</label>
+          <label><input type="checkbox" id="prodIsOffer"> Oferta</label>
+        </div>
+
+        <button class="action-btn whatsapp" onclick="saveProduct()">Guardar producto</button>
+        
+        <hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">
+        
+        <h3>Listado de productos cargados</h3>
+        <div id="adminProductList"></div>
+      </div>
+    </div>
   </div>
 
   <script>
     const WHATSAPP_NUMBER = "543484341158";
-    const STORAGE_KEY = "pura_cart_v1";
+    const STORAGE_PRODUCTS = "pura_products_v2";
+    const STORAGE_CATEGORIES = "pura_categories_v2";
+    const STORAGE_CART = "pura_cart_v2";
 
-    const products = [
-      { id: 1, name: "Shampoo Premium", price: 8500, category: "Shampoos", emoji: "🧴", desc: "Limpieza profunda y brillo." },
-      { id: 2, name: "Cera Protectora", price: 9200, category: "Ceras", emoji: "✨", desc: "Protección y acabado brillante." },
-      { id: 3, name: "Silicona Interior", price: 7600, category: "Siliconas", emoji: "🪑", desc: "Renueva plásticos y tablero." },
-      { id: 4, name: "Limpiador Multiuso", price: 6900, category: "Limpieza", emoji: "🧼", desc: "Ideal para interior y exterior." },
-      { id: 5, name: "Paño Microfibra", price: 4500, category: "Accesorios", emoji: "🧽", desc: "Suave y absorbente." },
-      { id: 6, name: "Silicona Exterior", price: 8100, category: "Siliconas", emoji: "🚗", desc: "Protección para exterior." }
+    let defaultProducts = [
+      { id: 1, name: "Shampoo Premium", price: 8500, category: "Shampoos", image: "", desc: "Limpieza profunda y brillo.", isNew: true, isOffer: false },
+      { id: 2, name: "Cera Protectora", price: 9200, category: "Ceras", image: "", desc: "Protección y acabado brillante.", isNew: false, isOffer: true }
     ];
 
-    const categories = ["Todos", ...new Set(products.map(p => p.category))];
-    let activeCategory = "Todos";
+    let defaultCategories = ["Todos", "Shampoos", "Ceras", "Siliconas", "Limpieza", "Accesorios"];
+
+    let products = [];
+    let categories = [];
     let cart = [];
+    let activeCategory = "Todos";
+
+    // Inicializar datos
+    function initData() {
+      const savedProd = localStorage.getItem(STORAGE_PRODUCTS);
+      products = savedProd ? JSON.parse(savedProd) : defaultProducts;
+
+      const savedCat = localStorage.getItem(STORAGE_CATEGORIES);
+      categories = savedCat ? JSON.parse(savedCat) : defaultCategories;
+
+      const savedCart = localStorage.getItem(STORAGE_CART);
+      cart = savedCart ? JSON.parse(savedCart) : [];
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_PRODUCTS, JSON.stringify(products));
+      localStorage.setItem(STORAGE_CATEGORIES, JSON.stringify(categories));
+    }
+
+    function saveCart() {
+      localStorage.setItem(STORAGE_CART, JSON.stringify(cart));
+    }
+
+    // Manejo de carga de imagen local a Base64
+    document.getElementById('prodImageFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(uploadEvent) {
+          document.getElementById('prodImageBase64').value = uploadEvent.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
     const filtersEl = document.getElementById("filters");
     const gridEl = document.getElementById("productGrid");
@@ -392,22 +350,9 @@
     const cartItemsEl = document.getElementById("cartItems");
     const cartTotalEl = document.getElementById("cartTotal");
     const noticeEl = document.getElementById("whatsappNotice");
-    const floatingButton = document.getElementById("floatingButton");
-    const cartBtn = document.querySelector('.cart-btn');
 
     function formatPrice(n) {
-      return n.toLocaleString("es-AR");
-    }
-
-    function saveCart() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); } catch (e) { /* ignore */ }
-    }
-
-    function loadCart() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) cart = JSON.parse(raw) || [];
-      } catch (e) { cart = []; }
+      return Number(n).toLocaleString("es-AR");
     }
 
     function renderFilters() {
@@ -420,7 +365,7 @@
       const q = searchEl.value.trim().toLowerCase();
       const filtered = products.filter(p => {
         const matchesCat = activeCategory === "Todos" || p.category === activeCategory;
-        const matchesQuery = !q || p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+        const matchesQuery = !q || p.name.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q));
         return matchesCat && matchesQuery;
       });
 
@@ -428,17 +373,23 @@
 
       gridEl.innerHTML = filtered.map(p => `
         <div class="card">
-          <div class="card-img" aria-hidden="true">${p.emoji}</div>
+          <div class="card-img">
+            <div class="card-badges">
+              ${p.isNew ? '<span class="badge badge-new">NUEVO</span>' : ''}
+              ${p.isOffer ? '<span class="badge badge-offer">OFERTA</span>' : ''}
+            </div>
+            ${p.image ? `<img src="${p.image}" alt="${p.name}">` : '<span style="font-size:36px;">📦</span>'}
+          </div>
           <div class="card-body">
             <h3>${p.name}</h3>
-            <p>${p.desc}</p>
+            <p>${p.desc || ''}</p>
             <div class="price-row">
               <span class="price">$${formatPrice(p.price)}</span>
               <button class="add-btn" onclick="addToCart(${p.id})">Agregar</button>
             </div>
           </div>
         </div>
-      `).join("") || `<div class="empty">No encontramos productos</div>`;
+      `).join("") || `<div style="grid-column: 1/-1; text-align:center; color:var(--muted); padding:30px 0;">No encontramos productos</div>`;
     }
 
     function setCategory(cat) {
@@ -468,10 +419,7 @@
       if (!item) return;
       item.qty += delta;
       if (item.qty <= 0) removeFromCart(id);
-      else {
-        saveCart();
-        renderCart();
-      }
+      else { saveCart(); renderCart(); }
     }
 
     function clearCart() {
@@ -480,65 +428,9 @@
       renderCart();
     }
 
-    function buildMessage() {
-      // Use real newline characters so WhatsApp and clipboard get line breaks
-      const lines = cart.map(i => `- ${i.name} x${i.qty} ($${formatPrice(i.price * i.qty)})`).join("\n");
-      const total = formatPrice(cart.reduce((acc, i) => acc + i.qty * i.price, 0));
-      return `Hola, quiero hacer un pedido en PURA:\n\n${lines}\n\nTotal: $${total}\n\n¿Me confirmás disponibilidad?`;
-    }
-
-    function showMessage(text) {
-      noticeEl.textContent = text;
-      noticeEl.classList.add("show");
-      // small timeout to hide automatically after some time (optional)
-      // setTimeout(() => noticeEl.classList.remove("show"), 6000);
-    }
-
-    function makeWhatsAppLink() {
-      const message = buildMessage();
-      return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    }
-
-  function showOrder() {
-      if (cart.length === 0) {
-        alert("Tu carrito está vacío");
-        return;
-      }
-      const url = makeWhatsAppLink();
-      window.open(url, "_blank");
-    }
-
-    async function copyOrder() {
-      if (cart.length === 0) {
-        alert("Tu carrito está vacío");
-        return;
-      }
-      const message = buildMessage();
-      const url = makeWhatsAppLink();
-      const text = message + "\n\n" + url;
-      try {
-        await navigator.clipboard.writeText(text);
-        showMessage("Pedido copiado. Solo pegalo en WhatsApp:\n\n" + text);
-      } catch (e) {
-        showMessage("No se pudo copiar automáticamente. Copia este texto:\n\n" + text);
-      }
-    }
-
     function toggleCart(forceOpen = null) {
       const shouldOpen = forceOpen === null ? !cartDrawer.classList.contains("open") : forceOpen;
       cartDrawer.classList.toggle("open", shouldOpen);
-      floatingButton.classList.toggle("show", !shouldOpen && cart.length > 0);
-
-      // update aria-expanded on the cart button
-      cartBtn.setAttribute('aria-expanded', String(shouldOpen));
-      // prevent background scroll when open
-      document.body.style.overflow = shouldOpen ? 'hidden' : '';
-      // focus management
-      if (shouldOpen) {
-        cartDrawer.focus();
-      } else {
-        cartBtn.focus();
-      }
     }
 
     function renderCart() {
@@ -547,10 +439,9 @@
 
       cartCountEl.textContent = count;
       cartTotalEl.textContent = formatPrice(total);
-      floatingButton.classList.toggle("show", !cartDrawer.classList.contains("open") && cart.length > 0);
 
       if (cart.length === 0) {
-        cartItemsEl.innerHTML = `<div class="empty">Tu carrito está vacío</div>`;
+        cartItemsEl.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px 0;">Tu carrito está vacío</div>`;
         return;
       }
 
@@ -558,26 +449,171 @@
         <div class="cart-item">
           <div>
             <strong>${item.name}</strong>
-            <div style="color:#64748b;font-size:13px">$${formatPrice(item.price)} c/u</div>
+            <div style="color:var(--muted); font-size:12px">$${formatPrice(item.price)} c/u</div>
             <div class="qty-controls">
-              <button onclick="changeQty(${item.id}, -1)" aria-label="Disminuir cantidad">-</button>
+              <button onclick="changeQty(${item.id}, -1)">-</button>
               <span>${item.qty}</span>
-              <button onclick="changeQty(${item.id}, 1)" aria-label="Incrementar cantidad">+</button>
+              <button onclick="changeQty(${item.id}, 1)">+</button>
             </div>
           </div>
           <div style="text-align:right">
             <div><strong>$${formatPrice(item.qty * item.price)}</strong></div>
-            <button class="secondary" style="margin-top:10px;padding:8px 10px" onclick="removeFromCart(${item.id})">Eliminar</button>
+            <button class="secondary" style="margin-top:8px; padding:4px 8px; font-size:11px;" onclick="removeFromCart(${item.id})">Eliminar</button>
           </div>
         </div>
       `).join("");
     }
 
-    // wire search input
-    searchEl.addEventListener("input", renderProducts);
+    function buildMessage() {
+      const lines = cart.map(i => `- ${i.name} x${i.qty} ($${formatPrice(i.price * i.qty)})`).join("\n");
+      const total = formatPrice(cart.reduce((acc, i) => acc + i.qty * i.price, 0));
+      return `Hola, quiero hacer un pedido en PURA:\n\n${lines}\n\nTotal: $${total}\n\n¿Me confirmás disponibilidad?`;
+    }
 
-    // initialize: load cart from storage then render everything
-    loadCart();
+    function makeWhatsAppLink() {
+      const message = buildMessage();
+      return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    }
+
+    function showOrder() {
+      if (cart.length === 0) {
+        alert("Tu carrito está vacío");
+        return;
+      }
+      const url = makeWhatsAppLink();
+      window.open(url, "_blank");
+    }
+
+    // Funciones del Panel de Administración
+    function openAdminModal() {
+      document.getElementById("adminModal").classList.add("open");
+      resetAdminForm();
+      updateAdminCategorySelect();
+      renderAdminProductList();
+    }
+
+    function closeAdminModal() {
+      document.getElementById("adminModal").classList.remove("open");
+      renderFilters();
+      renderProducts();
+    }
+
+    function resetAdminForm() {
+      document.getElementById("editIndex").value = "-1";
+      document.getElementById("formTitleText").textContent = "Nuevo producto";
+      document.getElementById("prodName").value = "";
+      document.getElementById("prodPrice").value = "";
+      document.getElementById("prodDesc").value = "";
+      document.getElementById("prodImageFile").value = "";
+      document.getElementById("prodImageBase64").value = "";
+      document.getElementById("prodIsNew").checked = false;
+      document.getElementById("prodIsOffer").checked = false;
+    }
+
+    function updateAdminCategorySelect() {
+      const select = document.getElementById("prodCategory");
+      const availableCats = categories.filter(c => c !== "Todos");
+      select.innerHTML = availableCats.map(c => `<option value="${c}">${c}</option>`).join("");
+    }
+
+    function addNewCategoryPrompt() {
+      const newCat = prompt("Nombre de la nueva categoría:");
+      if (newCat && newCat.trim() !== "") {
+        const formatted = newCat.trim();
+        if (!categories.includes(formatted)) {
+          categories.push(formatted);
+          saveData();
+          updateAdminCategorySelect();
+          renderFilters();
+        }
+      }
+    }
+
+    function saveProduct() {
+      const editIndex = parseInt(document.getElementById("editIndex").value);
+      const name = document.getElementById("prodName").value.trim();
+      const category = document.getElementById("prodCategory").value;
+      const price = parseFloat(document.getElementById("prodPrice").value);
+      const desc = document.getElementById("prodDesc").value.trim();
+      let image = document.getElementById("prodImageBase64").value;
+      const isNew = document.getElementById("prodIsNew").checked;
+      const isOffer = document.getElementById("prodIsOffer").checked;
+
+      if (!name || isNaN(price)) {
+        alert("Por favor completa el nombre y el precio del producto.");
+        return;
+      }
+
+      if (editIndex === -1) {
+        // Nuevo producto
+        if (!image) image = ""; // Sin imagen si no se seleccionó
+        const newProduct = {
+          id: Date.now(),
+          name, category, price, desc, image, isNew, isOffer
+        };
+        products.push(newProduct);
+      } else {
+        // Editar producto existente
+        if (!image) {
+          image = products[editIndex].image; // Mantener la imagen previa si no se cambió
+        }
+        products[editIndex] = {
+          ...products[editIndex],
+          name, category, price, desc, image, isNew, isOffer
+        };
+      }
+
+      saveData();
+      resetAdminForm();
+      renderAdminProductList();
+      alert("¡Producto guardado con éxito!");
+    }
+
+    function renderAdminProductList() {
+      const listEl = document.getElementById("adminProductList");
+      if (products.length === 0) {
+        listEl.innerHTML = `<p style="color:var(--muted); font-size:13px;">No hay productos cargados.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = products.map((p, idx) => `
+        <div class="admin-product-row">
+          <div>
+            <strong>${p.name}</strong> <span style="color:var(--muted); font-size:12px;">($${formatPrice(p.price)})</span>
+            <div style="font-size:11px; color:var(--muted);">${p.category}</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="secondary" style="padding:4px 8px; font-size:12px;" onclick="editProduct(${idx})">Editar</button>
+            <button class="danger" style="padding:4px 8px; font-size:12px;" onclick="deleteProduct(${idx})">Eliminar</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function editProduct(idx) {
+      const p = products[idx];
+      document.getElementById("editIndex").value = idx;
+      document.getElementById("formTitleText").textContent = `Editando: ${p.name}`;
+      document.getElementById("prodName").value = p.name;
+      document.getElementById("prodCategory").value = p.category;
+      document.getElementById("prodPrice").value = p.price;
+      document.getElementById("prodDesc").value = p.desc || "";
+      document.getElementById("prodImageBase64").value = p.image || "";
+      document.getElementById("prodIsNew").checked = !!p.isNew;
+      document.getElementById("prodIsOffer").checked = !!p.isOffer;
+    }
+
+    function deleteProduct(idx) {
+      if (confirm("¿Estás seguro de eliminar este producto?")) {
+        products.splice(idx, 1);
+        saveData();
+        renderAdminProductList();
+      }
+    }
+
+    // Inicialización general
+    searchEl.addEventListener("input", renderProducts);
+    initData();
     renderFilters();
     renderProducts();
     renderCart();
