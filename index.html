@@ -64,15 +64,15 @@
       gap: 10px;
       align-items: center;
     }
-    .cart-btn, .admin-btn {
+    .cart-btn {
       padding: 12px 16px;
       border: none;
       border-radius: 12px;
       cursor: pointer;
       font-weight: 750;
+      background: var(--primary);
+      color: white;
     }
-    .cart-btn { background: var(--primary); color: white; }
-    .admin-btn { background: var(--soft); color: var(--text); border: 1px solid var(--border); }
     
     .hero {
       padding: 28px 16px;
@@ -173,9 +173,6 @@
       display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
       border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: var(--soft);
     }
-
-    .notice { margin-top: 10px; padding: 12px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; border-radius: 12px; font-size: 14px; display: none; white-space: pre-wrap; }
-    .notice.show { display: block; }
     
     footer { border-top: 1px solid var(--border); background: var(--soft); margin-top: 40px; padding: 24px 0; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
@@ -188,7 +185,6 @@
       <label for="search" class="sr-only">Buscar productos</label>
       <input id="search" class="search" type="text" placeholder="Buscar productos..." />
       <div class="nav-actions">
-        <button class="admin-btn" onclick="openAdminModal()">Admin</button>
         <button class="cart-btn" onclick="toggleCart()">Carrito (<span id="cartCount">0</span>)</button>
       </div>
     </div>
@@ -211,16 +207,11 @@
     </div>
 
     <div class="grid" id="productGrid"></div>
-    <div id="whatsappNotice" class="notice"></div>
   </main>
 
   <footer>
-    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
-      <div>
-        <h3>PURA</h3>
-        <p style="color:var(--muted); font-size:14px; margin:0;">Pedí tus productos y envialos por WhatsApp.</p>
-      </div>
-      <button class="admin-btn" onclick="openAdminModal()">⚙️ Panel de Administración</button>
+    <div class="container" style="text-align:center;">
+      <p style="color:var(--muted); font-size:14px; margin:0;">PURA - Pedí tus productos y envialos por WhatsApp.</p>
     </div>
   </footer>
 
@@ -292,6 +283,7 @@
 
   <script>
     const WHATSAPP_NUMBER = "543484341158";
+    const ADMIN_PIN = "1234"; // <-- CAMBIA ESTE NÚMERO SI QUIERES OTRA CONTRASEÑA
     const STORAGE_PRODUCTS = "pura_products_v2";
     const STORAGE_CATEGORIES = "pura_categories_v2";
     const STORAGE_CART = "pura_cart_v2";
@@ -329,6 +321,19 @@
       localStorage.setItem(STORAGE_CART, JSON.stringify(cart));
     }
 
+    // Escuchar tecla F4 para abrir el panel con contraseña
+    document.addEventListener('keydown', function(event) {
+      if (event.key === "F4") {
+        event.preventDefault(); // Evita funciones predeterminadas del navegador para F4
+        const ingresado = prompt("Ingresa la contraseña de administración:");
+        if (ingresado === ADMIN_PIN) {
+          openAdminModal();
+        } else if (ingresado !== null) {
+          alert("Contraseña incorrecta");
+        }
+      }
+    });
+
     // Manejo de carga de imagen local a Base64
     document.getElementById('prodImageFile').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -349,7 +354,6 @@
     const cartCountEl = document.getElementById("cartCount");
     const cartItemsEl = document.getElementById("cartItems");
     const cartTotalEl = document.getElementById("cartTotal");
-    const noticeEl = document.getElementById("whatsappNotice");
 
     function formatPrice(n) {
       return Number(n).toLocaleString("es-AR");
@@ -545,17 +549,15 @@
       }
 
       if (editIndex === -1) {
-        // Nuevo producto
-        if (!image) image = ""; // Sin imagen si no se seleccionó
+        if (!image) image = "";
         const newProduct = {
           id: Date.now(),
           name, category, price, desc, image, isNew, isOffer
         };
         products.push(newProduct);
       } else {
-        // Editar producto existente
         if (!image) {
-          image = products[editIndex].image; // Mantener la imagen previa si no se cambió
+          image = products[editIndex].image;
         }
         products[editIndex] = {
           ...products[editIndex],
